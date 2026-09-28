@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=5695c62e-c17f-4da5-a04a-ccff825eec7e
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Trade Review</title>
+<style>
+  :root{
+    --paper:#EDEFEC;
+    --paper-raised:#F5F6F3;
+    --ink:#1B2422;
+    --ink-soft:#586159;
+    --ink-faint:#8B948B;
+    --rule:#D3D7D0;
+    --accent:#8A6A2F;
+    --accent-soft:#EFE6D2;
+    --bad:#9C4B3E;
+    --good:#3E6B54;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:64px 24px 96px;
+  }
+  .eyebrow{
+    font-size:13px;
+    color:var(--ink-faint);
+    letter-spacing:0.02em;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:Arial, sans-serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:33px;
+    line-height:1.28;
+    margin:0 0 18px;
+    color:var(--ink);
+    max-width:20ch;
+  }
+  .lede{
+    font-size:15.5px;
+    color:var(--ink-soft);
+    max-width:52ch;
+    margin:0 0 40px;
+  }
+  .lede b{color:var(--ink); font-weight:600;}
+
+  /* --- Upload panel --- */
+  .panel{
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:28px;
+  }
+  .dropzone{
+    border:1.5px dashed var(--rule);
+    border-radius:2px;
+    padding:32px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .dropzone:hover, .dropzone.drag{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .dropzone .dz-title{
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--ink);
+    margin-bottom:4px;
+  }
+  .dropzone .dz-sub{
+    font-size:13px;
+    color:var(--ink-faint);
+  }
+  input[type=file]{display:none;}
+
+  .samples{
+    margin-top:18px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .samples span.or{color:var(--ink-faint); margin:0 2px;}
+  .sample-link{
+    color:var(--accent);
+    cursor:pointer;
+    text-decoration:underline;
+    text-decoration-color:var(--rule);
+    text-underline-offset:3px;
+  }
+  .sample-link:hover{text-decoration-color:var(--accent);}
+
+  .advanced-toggle{
+    margin-top:14px;
+    font-size:12px;
+    color:var(--ink-faint);
+    cursor:pointer;
+    text-decoration:underline;
+    text-decoration-color:var(--rule);
+    text-align:center;
+  }
+  .advanced-toggle:hover{color:var(--ink-soft);}
+  .advanced-panel{
+    display:none;
+    margin-top:12px;
+    padding:14px;
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:2px;
+  }
+  .advanced-panel.open{display:block;}
+  .advanced-panel input{
+    width:100%;
+    font-family:Arial, sans-serif;
+    font-size:13px;
+    padding:8px 10px;
+    border:1px solid var(--rule);
+    border-radius:2px;
+    background:var(--paper-raised);
+    color:var(--ink);
+    box-sizing:border-box;
+  }
+  .advanced-note{
+    margin-top:8px;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    line-height:1.5;
+  }
+
+  .filepill{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--accent-soft);
+    border:1px solid var(--rule);
+    padding:10px 14px;
+    border-radius:2px;
+    font-size:13.5px;
+    margin-top:14px;
+  }
+  .filepill .name{font-weight:500; color:var(--ink);}
+  .filepill .rows{color:var(--ink-faint); margin-left:8px;}
+  .filepill button{
+    background:none; border:none; color:var(--ink-faint);
+    cursor:pointer; font-size:13px; font-family:inherit;
+    text-decoration:underline;
+  }
+
+  .cta-row{
+    margin-top:20px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  button.primary{
+    font-family:Arial, sans-serif;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:11px 22px;
+    font-size:14px;
+    font-weight:500;
+    border-radius:2px;
+    cursor:pointer;
+    transition:opacity 0.15s ease;
+  }
+  button.primary:disabled{opacity:0.35; cursor:default;}
+  button.primary:not(:disabled):hover{opacity:0.85;}
+
+  .status{
+    margin-top:16px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .status.warn{
+    color:var(--accent);
+    font-style:normal;
+  }
+  .error-box{
+    margin-top:16px;
+    padding:12px 14px;
+    background:#F7EAE7;
+    border:1px solid #E3C4BC;
+    color:var(--bad);
+    font-size:13.5px;
+    border-radius:2px;
+  }
+
+  /* --- Results --- */
+  .results{
+    margin-top:44px;
+  }
+  .results-meta{
+    font-size:13px;
+    color:var(--ink-faint);
+    margin-bottom:24px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--rule);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .results-meta .reset{
+    color:var(--accent);
+    cursor:pointer;
+    text-decoration:underline;
+    text-decoration-color:var(--rule);
+  }
+  .finding{
+    padding:26px 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .finding:last-of-type{border-bottom:none;}
+  .finding .observation{
+    font-family:Arial, sans-serif;
+    font-size:19px;
+    line-height:1.45;
+    color:var(--ink);
+    margin:0 0 12px;
+  }
+  .finding .evidence{
+    font-family:Arial, sans-serif;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--rule);
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:2px;
+    margin-bottom:14px;
+  }
+  .finding .rule{
+    font-size:14px;
+    color:var(--ink);
+    padding-left:14px;
+    border-left:2px solid var(--accent);
+  }
+  .finding .rule .label{
+    display:block;
+    font-size:11.5px;
+    color:var(--accent);
+    margin-bottom:3px;
+    font-weight:500;
+  }
+
+  .clean-note{
+    font-family:Arial, sans-serif;
+    font-style:italic;
+    font-size:18px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    padding:24px 0;
+  }
+
+  .disclaimer{
+    margin-top:24px;
+    font-size:12px;
+    color:var(--ink-faint);
+    line-height:1.6;
+  }
+
+  footer{
+    margin-top:64px;
+    padding-top:20px;
+    border-top:1px solid var(--rule);
+    font-size:12px;
+    color:var(--ink-faint);
+    display:flex;
+    justify-content:space-between;
+  }
+
+  @media (max-width:480px){
+    .wrap{padding:40px 18px 72px;}
+    h1{font-size:27px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Post-trade review — prototype for Nubra</div>
+  <h1>What did last month's trading actually cost you?</h1>
+  <p class="lede">Upload a month of order history. This looks for <b>three specific habits</b> — cutting winners early, revenge trading, and low-conviction overtrading — and says something only when the evidence clearly supports it. No dashboards, no scores, no comparisons to other traders.</p>
+
+  <div class="panel" id="panel">
+    <div class="dropzone" id="dropzone">
+      <div class="dz-title">Drop your order-history CSV here, or click to choose a file</div>
+      <div class="dz-sub">Expected columns: order_id, symbol, side, quantity, price, timestamp, trade_type</div>
+      <input type="file" id="fileInput" accept=".csv">
+    </div>
+
+    <div class="samples">
+      Don't have a file handy? Try
+      <span class="sample-link" id="sampleTypical">a typical month</span><span class="or">or</span><span class="sample-link" id="sampleClean">a clean month</span>
+    </div>
+
+    <div class="advanced-toggle" id="advancedToggle">optional: add your own Anthropic API key for AI-written phrasing</div>
+    <div class="advanced-panel" id="advancedPanel">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+      <div class="advanced-note">Used only for this session, sent directly from your browser to Anthropic, never stored or sent anywhere else. Leave blank and the review still works — findings just use fixed plain-language phrasing instead of AI-written phrasing.</div>
+    </div>
+
+    <div id="filepillHolder"></div>
+    <div id="statusHolder"></div>
+
+    <div class="cta-row">
+      <button class="primary" id="analyzeBtn" disabled>Review my trades</button>
+    </div>
+  </div>
+
+  <div class="results" id="resultsHolder"></div>
+
+  <footer>
+    <span>Built for the Nubra product internship take-home</span>
+    <span id="resetLink" style="display:none; cursor:pointer; text-decoration:underline;">start over</span>
+  </footer>
+</div>
+
+<script>
+const SAMPLE_TYPICAL = `order_id,symbol,side,quantity,price,timestamp,trade_type
+T0019,ICICIBANK,BUY,30,1167.77,2025-08-01 09:37:54,INTRADAY
+T0003,HDFCBANK,BUY,40,1656.85,2025-08-01 09:47:54,INTRADAY
+T0019,ICICIBANK,SELL,30,1175.68,2025-08-01 10:42:54,INTRADAY
+T0003,HDFCBANK,SELL,40,1686.9,2025-08-01 11:05:18,INTRADAY
+T0036,AXISBANK,BUY,30,1111.65,2025-08-04 11:42:07,INTRADAY
+T0036,AXISBANK,SELL,30,1090.79,2025-08-04 12:03:07,INTRADAY
+T0037,AXISBANK,BUY,60,1100.15,2025-08-04 12:29:07,INTRADAY
+T0009,HDFCBANK,BUY,40,1637.82,2025-08-04 12:49:48,DELIVERY
+T0037,AXISBANK,SELL,60,1079.56,2025-08-04 13:16:07,INTRADAY
+T0009,HDFCBANK,SELL,40,1607.43,2025-08-04 15:25:00,DELIVERY
+T0043,SBIN,BUY,25,808.5,2025-08-05 10:46:09,INTRADAY
+T0043,SBIN,SELL,25,810.65,2025-08-05 11:06:09,INTRADAY
+T0045,TCS,BUY,20,3904.43,2025-08-05 11:44:26,INTRADAY
+T0045,TCS,SELL,20,3917.56,2025-08-05 11:50:26,INTRADAY
+T0046,INFY,BUY,25,1855.82,2025-08-05 11:53:52,INTRADAY
+T0046,INFY,SELL,25,1844.06,2025-08-05 12:06:52,INTRADAY
+T0007,SBIN,BUY,30,813.54,2025-08-05 12:23:00,INTRADAY
+T0044,BAJFINANCE,BUY,30,7044.43,2025-08-05 14:08:52,INTRADAY
+T0044,BAJFINANCE,SELL,30,7011.94,2025-08-05 14:28:52,INTRADAY
+T0007,SBIN,SELL,30,820.99,2025-08-05 15:25:00,INTRADAY
+T0002,BAJFINANCE,BUY,40,7086.47,2025-08-06 09:21:46,DELIVERY
+T0024,BAJFINANCE,BUY,50,7175.29,2025-08-06 10:01:25,DELIVERY
+T0002,BAJFINANCE,SELL,40,7079.51,2025-08-06 15:25:00,DELIVERY
+T0018,BAJFINANCE,BUY,30,7270.82,2025-08-07 10:01:44,INTRADAY
+T0018,BAJFINANCE,SELL,30,7437.37,2025-08-07 11:30:48,INTRADAY
+T0026,HDFCBANK,BUY,40,1631.14,2025-08-08 10:36:16,DELIVERY
+T0013,TCS,BUY,25,3965.23,2025-08-11 09:49:56,INTRADAY
+T0024,BAJFINANCE,SELL,50,6828.63,2025-08-11 10:08:46,DELIVERY
+T0013,TCS,SELL,25,4007.35,2025-08-11 11:18:43,INTRADAY
+T0048,TATAMOTORS,BUY,25,926.0,2025-08-12 09:44:04,INTRADAY
+T0048,TATAMOTORS,SELL,25,927.36,2025-08-12 09:51:04,INTRADAY
+T0051,INFY,BUY,25,1824.57,2025-08-12 10:29:36,INTRADAY
+T0050,TCS,BUY,20,3955.4,2025-08-12 10:41:24,INTRADAY
+T0051,INFY,SELL,25,1835.85,2025-08-12 10:43:36,INTRADAY
+T0050,TCS,SELL,20,3957.32,2025-08-12 10:55:24,INTRADAY
+T0052,RELIANCE,BUY,25,2855.51,2025-08-12 11:14:43,INTRADAY
+T0052,RELIANCE,SELL,25,2845.14,2025-08-12 11:20:43,INTRADAY
+T0005,BAJFINANCE,BUY,40,7228.1,2025-08-12 11:57:39,INTRADAY
+T0005,BAJFINANCE,SELL,40,7298.62,2025-08-12 13:10:10,INTRADAY
+T0049,ICICIBANK,BUY,20,1181.83,2025-08-12 13:21:18,INTRADAY
+T0049,ICICIBANK,SELL,20,1181.94,2025-08-12 13:37:18,INTRADAY
+T0047,ICICIBANK,BUY,30,1171.19,2025-08-12 13:46:48,INTRADAY
+T0047,ICICIBANK,SELL,30,1161.42,2025-08-12 13:50:48,INTRADAY
+T0026,HDFCBANK,SELL,40,1560.92,2025-08-12 14:41:51,DELIVERY
+T0004,RELIANCE,BUY,50,2816.51,2025-08-13 11:46:25,INTRADAY
+T0004,RELIANCE,SELL,50,2770.16,2025-08-13 15:25:00,INTRADAY
+T0017,AXISBANK,BUY,30,1126.22,2025-08-14 11:38:37,DELIVERY
+T0017,AXISBANK,SELL,30,1118.83,2025-08-14 15:25:00,DELIVERY
+T0010,ICICIBANK,BUY,25,1166.44,2025-08-15 10:17:36,DELIVERY
+T0021,INFY,BUY,40,1877.56,2025-08-15 10:42:02,INTRADAY
+T0021,INFY,SELL,40,1905.12,2025-08-15 13:15:02,INTRADAY
+T0010,ICICIBANK,SELL,25,1180.79,2025-08-15 15:25:00,DELIVERY
+T0008,INFY,BUY,30,1863.92,2025-08-18 10:04:37,INTRADAY
+T0028,TCS,BUY,30,3986.06,2025-08-18 10:54:58,INTRADAY
+T0028,TCS,SELL,30,3894.68,2025-08-18 11:39:58,INTRADAY
+T0008,INFY,SELL,30,1904.26,2025-08-18 11:53:12,INTRADAY
+T0029,TCS,BUY,60,3901.05,2025-08-18 11:56:58,INTRADAY
+T0029,TCS,SELL,60,3828.22,2025-08-18 12:39:58,INTRADAY
+T0027,HDFCBANK,BUY,40,1629.57,2025-08-19 10:25:34,INTRADAY
+T0027,HDFCBANK,SELL,40,1649.01,2025-08-19 11:34:34,INTRADAY
+T0012,ICICIBANK,BUY,50,1180.45,2025-08-19 11:59:20,INTRADAY
+T0012,ICICIBANK,SELL,50,1209.83,2025-08-19 13:38:48,INTRADAY
+T0016,ICICIBANK,BUY,50,1168.83,2025-08-20 10:03:11,INTRADAY
+T0030,ITC,BUY,30,472.87,2025-08-20 11:59:23,INTRADAY
+T0030,ITC,SELL,30,462.41,2025-08-20 12:33:23,INTRADAY
+T0031,ITC,BUY,60,456.64,2025-08-20 13:10:23,INTRADAY
+T0016,ICICIBANK,SELL,50,1191.52,2025-08-20 13:54:52,INTRADAY
+T0031,ITC,SELL,60,461.14,2025-08-20 13:59:23,INTRADAY
+T0025,RELIANCE,BUY,30,2886.06,2025-08-21 09:39:12,INTRADAY
+T0034,ITC,BUY,40,468.66,2025-08-21 10:57:45,INTRADAY
+T0034,ITC,SELL,40,456.97,2025-08-21 11:40:45,INTRADAY
+T0025,RELIANCE,SELL,30,2905.21,2025-08-21 11:48:12,INTRADAY
+T0035,ITC,BUY,120,458.58,2025-08-21 12:07:45,INTRADAY
+T0035,ITC,SELL,120,451.16,2025-08-21 12:40:45,INTRADAY
+T0022,AXISBANK,BUY,50,1129.54,2025-08-22 09:57:27,DELIVERY
+T0015,RELIANCE,BUY,25,2821.84,2025-08-22 12:26:09,DELIVERY
+T0015,RELIANCE,SELL,25,2863.01,2025-08-22 15:25:00,DELIVERY
+T0006,TCS,BUY,30,3896.7,2025-08-25 09:47:34,INTRADAY
+T0006,TCS,SELL,30,3965.03,2025-08-25 12:09:10,INTRADAY
+T0011,ITC,BUY,50,466.14,2025-08-26 12:15:32,INTRADAY
+T0011,ITC,SELL,50,461.99,2025-08-26 14:03:12,INTRADAY
+T0014,TATAMOTORS,BUY,50,953.57,2025-08-27 12:02:43,DELIVERY
+T0014,TATAMOTORS,SELL,50,976.16,2025-08-27 15:25:00,DELIVERY
+T0020,ITC,BUY,30,469.94,2025-08-28 10:42:43,DELIVERY
+T0032,HDFCBANK,BUY,30,1649.05,2025-08-28 10:55:29,INTRADAY
+T0032,HDFCBANK,SELL,30,1611.17,2025-08-28 11:21:29,INTRADAY
+T0038,TCS,BUY,30,3959.35,2025-08-28 11:34:27,INTRADAY
+T0038,TCS,SELL,30,3963.9,2025-08-28 11:38:27,INTRADAY
+T0042,HDFCBANK,BUY,30,1631.81,2025-08-28 11:44:50,INTRADAY
+T0040,SBIN,BUY,20,807.47,2025-08-28 11:45:03,INTRADAY
+T0040,SBIN,SELL,20,806.04,2025-08-28 11:57:03,INTRADAY
+T0042,HDFCBANK,SELL,30,1641.36,2025-08-28 11:58:50,INTRADAY
+T0033,HDFCBANK,BUY,60,1627.87,2025-08-28 11:59:29,INTRADAY
+T0033,HDFCBANK,SELL,60,1638.16,2025-08-28 12:14:29,INTRADAY
+T0022,AXISBANK,SELL,50,1087.16,2025-08-28 12:53:56,DELIVERY
+T0041,TCS,BUY,20,3964.36,2025-08-28 13:30:17,INTRADAY
+T0041,TCS,SELL,20,3929.94,2025-08-28 13:36:17,INTRADAY
+T0039,TATAMOTORS,BUY,30,940.64,2025-08-28 14:28:41,INTRADAY
+T0039,TATAMOTORS,SELL,30,934.69,2025-08-28 14:39:41,INTRADAY
+T0023,AXISBANK,BUY,40,1108.71,2025-08-29 09:46:31,INTRADAY
+T0023,AXISBANK,SELL,40,1118.73,2025-08-29 10:47:31,INTRADAY
+T0001,AXISBANK,BUY,25,1107.48,2025-08-29 11:53:15,INTRADAY
+T0001,AXISBANK,SELL,25,1112.48,2025-08-29 14:50:13,INTRADAY
+T0020,ITC,SELL,30,442.75,2025-09-01 13:49:34,DELIVERY`;
+
+const SAMPLE_CLEAN = `order_id,symbol,side,quantity,price,timestamp,trade_type
+C0010,INFY,BUY,35,1846.24,2025-09-01 11:08:39,INTRADAY
+C0010,INFY,SELL,35,1815.56,2025-09-01 13:53:13,INTRADAY
+C0004,ITC,BUY,45,460.24,2025-09-02 10:58:44,INTRADAY
+C0004,ITC,SELL,45,464.55,2025-09-02 13:34:03,INTRADAY
+C0005,AXISBANK,BUY,45,1100.88,2025-09-03 13:18:58,INTRADAY
+C0005,AXISBANK,SELL,45,1107.02,2025-09-03 15:12:49,INTRADAY
+C0006,INFY,BUY,40,1869.58,2025-09-04 10:01:30,DELIVERY
+C0007,BAJFINANCE,BUY,40,7247.23,2025-09-04 10:52:52,DELIVERY
+C0002,TATAMOTORS,BUY,35,928.0,2025-09-05 11:47:38,INTRADAY
+C0002,TATAMOTORS,SELL,35,941.24,2025-09-05 13:24:39,INTRADAY
+C0006,INFY,SELL,40,1884.66,2025-09-06 09:06:12,DELIVERY
+C0007,BAJFINANCE,SELL,40,7241.15,2025-09-06 11:02:27,DELIVERY
+C0008,ITC,BUY,30,470.99,2025-09-08 09:36:34,DELIVERY
+C0015,RELIANCE,BUY,35,2789.17,2025-09-09 09:38:23,DELIVERY
+C0016,RELIANCE,BUY,35,2882.52,2025-09-09 11:46:31,INTRADAY
+C0016,RELIANCE,SELL,35,2827.96,2025-09-09 13:30:08,INTRADAY
+C0008,ITC,SELL,30,481.21,2025-09-10 09:54:13,DELIVERY
+C0025,ITC,BUY,40,469.65,2025-09-10 12:58:21,DELIVERY
+C0015,RELIANCE,SELL,35,2773.22,2025-09-11 08:57:51,DELIVERY
+C0011,INFY,BUY,45,1841.15,2025-09-11 13:15:55,DELIVERY
+C0025,ITC,SELL,40,475.69,2025-09-11 13:47:31,DELIVERY
+C0009,TATAMOTORS,BUY,40,923.42,2025-09-12 09:26:09,DELIVERY
+C0011,INFY,SELL,45,1857.12,2025-09-13 14:14:17,DELIVERY
+C0009,TATAMOTORS,SELL,40,909.49,2025-09-14 08:46:18,DELIVERY
+C0001,HDFCBANK,BUY,30,1673.66,2025-09-15 11:57:35,DELIVERY
+C0021,AXISBANK,BUY,40,1135.8,2025-09-16 12:13:47,INTRADAY
+C0001,HDFCBANK,SELL,30,1643.46,2025-09-16 12:54:44,DELIVERY
+C0021,AXISBANK,SELL,40,1160.07,2025-09-16 14:51:09,INTRADAY
+C0003,SBIN,BUY,30,811.03,2025-09-17 11:49:34,DELIVERY
+C0019,INFY,BUY,30,1815.0,2025-09-18 10:16:02,DELIVERY
+C0003,SBIN,SELL,30,811.72,2025-09-18 12:03:50,DELIVERY
+C0020,AXISBANK,BUY,40,1113.54,2025-09-18 12:15:33,DELIVERY
+C0022,TATAMOTORS,BUY,35,922.25,2025-09-19 10:14:35,INTRADAY
+C0022,TATAMOTORS,SELL,35,904.93,2025-09-19 11:57:15,INTRADAY
+C0019,INFY,SELL,30,1820.11,2025-09-20 09:33:37,DELIVERY
+C0020,AXISBANK,SELL,40,1133.74,2025-09-20 12:17:45,DELIVERY
+C0012,INFY,BUY,30,1874.5,2025-09-22 10:08:07,INTRADAY
+C0012,INFY,SELL,30,1837.96,2025-09-22 12:27:08,INTRADAY
+C0023,ITC,BUY,40,474.08,2025-09-23 10:12:52,DELIVERY
+C0014,AXISBANK,BUY,30,1119.17,2025-09-24 11:24:41,DELIVERY
+C0013,ICICIBANK,BUY,40,1171.44,2025-09-25 09:21:07,INTRADAY
+C0023,ITC,SELL,40,483.25,2025-09-25 10:06:32,DELIVERY
+C0013,ICICIBANK,SELL,40,1178.01,2025-09-25 11:25:16,INTRADAY
+C0024,TCS,BUY,35,3969.6,2025-09-26 09:47:53,INTRADAY
+C0024,TCS,SELL,35,3924.28,2025-09-26 11:11:29,INTRADAY
+C0014,AXISBANK,SELL,30,1115.31,2025-09-26 11:12:27,DELIVERY
+C0017,INFY,BUY,40,1886.49,2025-09-29 10:54:51,DELIVERY
+C0018,ITC,BUY,45,469.47,2025-09-29 11:32:07,INTRADAY
+C0018,ITC,SELL,45,474.86,2025-09-29 12:49:24,INTRADAY
+C0017,INFY,SELL,40,1916.02,2025-10-01 10:09:35,DELIVERY`;
+
+// --- CSV parsing ---
+function parseCSV(text){
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length);
+  const headers = lines[0].split(',').map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const cols = line.split(',');
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cols[i] || '').trim());
+    return obj;
+  });
+}
+
+// --- Reconstruct round-trip trades (order_id pairs a BUY leg with a SELL leg) ---
+function reconstructTrades(orders){
+  const byId = {};
+  orders.forEach(o => {
+    if (!byId[o.order_id]) byId[o.order_id] = [];
+    byId[o.order_id].push(o);
+  });
+  const trades = [];
+  let skipped = 0;
+  Object.values(byId).forEach(legs => {
+    const buy = legs.find(l => l.side === 'BUY');
+    const sell = legs.find(l => l.side === 'SELL');
+    if (!buy || !sell || legs.length !== 2){ skipped++; return; }
+    const entry = new Date(buy.timestamp.replace(' ', 'T'));
+    const exit = new Date(sell.timestamp.replace(' ', 'T'));
+    const qty = parseFloat(buy.quantity);
+    const buyPrice = parseFloat(buy.price);
+    const sellPrice = parseFloat(sell.price);
+    if (isNaN(entry) || isNaN(exit) || isNaN(qty) || isNaN(buyPrice) || isNaN(sellPrice)){ skipped++; return; }
+    const holdingHours = (exit - entry) / (1000 * 60 * 60);
+    const pnl = (sellPrice - buyPrice) * qty;
+    const pnlPct = ((sellPrice - buyPrice) / buyPrice) * 100;
+    trades.push({ symbol: buy.symbol, entry, exit, holdingHours, qty, pnl, pnlPct });
+  });
+  trades.sort((a, b) => a.entry - b.entry);
+  return { trades, skipped };
+}
+
+function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+function dayKey(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+
+// --- Deterministic pattern detection: every number here is computed directly
+// from the data, never asked of the model, so it cannot be wrong the way an
+// LLM's mental arithmetic over 50+ trades can be. ---
+function detectPatterns(trades){
+  const result = {};
+
+  const winners = trades.filter(t => t.pnl > 0);
+  const losers = trades.filter(t => t.pnl < 0);
+  if (winners.length >= 3 && losers.length >= 3){
+    const winnerAvg = winners.reduce((s, t) => s + t.holdingHours, 0) / winners.length;
+    const loserAvg = losers.reduce((s, t) => s + t.holdingHours, 0) / losers.length;
+    if (winnerAvg > 0 && loserAvg >= 2 * winnerAvg){
+      result.disposition = {
+        winnerAvg, loserAvg, ratio: loserAvg / winnerAvg,
+        nWinners: winners.length, nLosers: losers.length,
+        evidence: `losing trades held ${(loserAvg/winnerAvg).toFixed(1)}x longer than winners (avg ${loserAvg.toFixed(1)}h vs ${winnerAvg.toFixed(1)}h, across ${losers.length} losing and ${winners.length} winning trades)`
+      };
+    }
+  }
+
+  const avgQty = trades.reduce((s, t) => s + t.qty, 0) / trades.length;
+  const claimed = new Set();
+  let revengeCount = 0;
+  for (let j = 0; j < trades.length; j++){
+    if (trades[j].qty < 1.5 * avgQty) continue;
+    let nearestLoss = null;
+    for (let i = j - 1; i >= 0; i--){
+      if (trades[i].pnl < 0){ nearestLoss = trades[i]; break; }
+    }
+    if (!nearestLoss) continue;
+    const diffMin = (trades[j].entry - nearestLoss.exit) / (1000 * 60);
+    if (diffMin >= 0 && diffMin <= 60){
+      revengeCount++;
+      claimed.add(nearestLoss);
+      claimed.add(trades[j]);
+    }
+  }
+  if (revengeCount >= 3){
+    result.revenge = {
+      count: revengeCount, avgQty,
+      evidence: `${revengeCount} times this month, a losing trade was followed within 60 minutes by a new trade at least 1.5x your average size (average trade size: ${avgQty.toFixed(0)} shares)`
+    };
+  }
+
+  const byDay = {};
+  trades.forEach(t => {
+    const k = dayKey(t.entry);
+    if (!byDay[k]) byDay[k] = [];
+    byDay[k].push(t);
+  });
+  let qualifyingDays = [], totalOvertradingTrades = 0;
+  Object.entries(byDay).forEach(([day, dayTrades]) => {
+    // Filter to individually-fast trades (<30 min), excluding any trade
+    // already claimed by the revenge pattern above — a trade that's really
+    // an oversized impulsive re-entry shouldn't also be double-counted as
+    // low-conviction overtrading just because it happens to be quick too.
+    const fast = dayTrades.filter(t => t.holdingHours < 0.5 && !claimed.has(t));
+    if (fast.length < 4) return;
+    const avgPnlPct = fast.reduce((s, t) => s + t.pnlPct, 0) / fast.length;
+    if (avgPnlPct >= -1 && avgPnlPct <= 1){
+      qualifyingDays.push(day);
+      totalOvertradingTrades += fast.length;
+    }
+  });
+  if (qualifyingDays.length >= 2){
+    result.overtrading = {
+      days: qualifyingDays.length, trades: totalOvertradingTrades,
+      evidence: `on ${qualifyingDays.length} separate days this month you placed 4+ trades in a row averaging under 30 minutes holding time with close-to-breakeven P&L (${totalOvertradingTrades} trades total)`
+    };
+  }
+
+  return result;
+}
+
+// --- Ask the model only for prose, never for numbers. Every number the
+// person sees was computed in detectPatterns() above and is simply handed
+// to the model as an already-confirmed fact. ---
+let sampleFn; // undefined = not yet checked, null = unavailable, function = ready
+async function getSample(){
+  if (sampleFn !== undefined) return sampleFn;
+  if (typeof window.claude === 'undefined' || typeof window.claude.use !== 'function'){
+    sampleFn = null;
+    return sampleFn;
+  }
+  sampleFn = await window.claude.use('sample');
+  return sampleFn;
+}
+
+const SAMPLE_ERROR_COPY = {
+  not_granted: "This page needs permission to ask Claude — allow it in the prompt and try again.",
+  sampling_disabled: "Claude isn't available for this account right now.",
+  not_declared: "This page isn't set up to ask Claude.",
+  capability_disabled: "Asking Claude isn't available in this view.",
+  capability_removed: "Asking Claude isn't supported in this view.",
+  rate_limited: "Too many requests right now — wait a moment and try again.",
+  session_expired: "Please sign in again and retry.",
+  refused: "Claude declined to respond to that — try again.",
+  empty_completion: "Didn't get a response back — try again.",
+  invalid_json: "Got an unreadable response back — try again.",
+  upstream_error: "A temporary connection issue — try again in a moment."
+};
+
+async function writeCoaching(patterns){
+  const keys = Object.keys(patterns);
+  if (keys.length === 0) return {};
+
+  const lines = keys.map(k => `- ${k}: ${patterns[k].evidence}`).join('\n');
+  const prompt = `You are a plain-spoken trading coach. The pattern(s) below have ALREADY been detected and verified in a retail trader's order history this month — the numbers are confirmed correct. Do not recompute, restate differently, round, or invent any numbers; only use the exact figures given to you if you reference them at all.
+
+CONFIRMED PATTERN(S) THIS MONTH:
+${lines}
+
+For each pattern listed above, by its key name, write:
+- "observation": one sentence naming the pattern in plain language, no jargon (e.g. never say "disposition effect" — describe the behavior itself)
+- "rule": one single, concrete rule the trader could adopt next month — not generic advice like "be more disciplined"
+
+Tone: constructive and specific, like a coach who actually looked at their trades — never clinical, judgmental, or comparing them to other traders.
+
+Reply with only a JSON object shaped like:
+{ ${keys.map(k => `"${k}": {"observation": "...", "rule": "..."}`).join(', ')} }`;
+
+  // Path 1: Claude's built-in sample capability (works when this page is
+  // opened through its claude.ai artifact link, using the viewer's own
+  // Claude access — no key needed).
+  const sample = await getSample();
+  if (sample){
+    try {
+      return await sample.json(prompt, { modelTier: 'quick' });
+    } catch(err){
+      console.error('sample error, trying next option:', err);
+    }
+  }
+
+  // Path 2: a user-supplied Anthropic API key, for when this page is hosted
+  // outside Claude (Bolt/Vercel/Netlify/local). Called directly from the
+  // browser using Anthropic's documented direct-browser-access header; the
+  // key lives only in this page's memory for this session, never stored.
+  if (userApiKey){
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': userApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!response.ok){
+      let detail = '';
+      try { const errBody = await response.json(); if (errBody?.error?.message) detail = ' — ' + errBody.error.message; } catch(_) {}
+      throw new Error(`API key rejected or request failed (${response.status})${detail}`);
+    }
+    const data = await response.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No text in response');
+    const raw = textBlock.text;
+    const firstBrace = raw.indexOf('{');
+    const lastBrace = raw.lastIndexOf('}');
+    if (firstBrace === -1 || lastBrace === -1 || lastBrace < firstBrace){
+      throw new Error('No JSON found in response');
+    }
+    return JSON.parse(raw.slice(firstBrace, lastBrace + 1));
+  }
+
+  // Neither path available — caller falls back to fixed template phrasing.
+  throw new Error('No AI writing method available on this host.');
+}
+
+let currentCSV = null;
+let currentFileLabel = null;
+let userApiKey = '';
+
+
+const advancedToggle = document.getElementById('advancedToggle');
+const advancedPanel = document.getElementById('advancedPanel');
+const apiKeyInput = document.getElementById('apiKeyInput');
+advancedToggle.addEventListener('click', () => advancedPanel.classList.toggle('open'));
+apiKeyInput.addEventListener('input', (e) => { userApiKey = e.target.value.trim(); });
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const filepillHolder = document.getElementById('filepillHolder');
+const statusHolder = document.getElementById('statusHolder');
+const resultsHolder = document.getElementById('resultsHolder');
+const resetLink = document.getElementById('resetLink');
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    currentCSV = e.target.result;
+    currentFileLabel = file.name;
+    const rowCount = currentCSV.trim().split('\n').length - 1;
+    showFilePill(file.name, rowCount);
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('sampleTypical').addEventListener('click', () => {
+  currentCSV = SAMPLE_TYPICAL;
+  currentFileLabel = 'sample: a typical month';
+  showFilePill('a typical month (sample)', SAMPLE_TYPICAL.trim().split('\n').length - 1);
+});
+document.getElementById('sampleClean').addEventListener('click', () => {
+  currentCSV = SAMPLE_CLEAN;
+  currentFileLabel = 'sample: a clean month';
+  showFilePill('a clean month (sample)', SAMPLE_CLEAN.trim().split('\n').length - 1);
+});
+
+function showFilePill(name, rowCount){
+  filepillHolder.innerHTML = `
+    <div class="filepill">
+      <span><span class="name">${escapeHtml(name)}</span><span class="rows">${rowCount} orders</span></span>
+      <button id="clearFile">remove</button>
+    </div>`;
+  document.getElementById('clearFile').addEventListener('click', () => {
+    currentCSV = null;
+    currentFileLabel = null;
+    filepillHolder.innerHTML = '';
+    analyzeBtn.disabled = true;
+  });
+  analyzeBtn.disabled = false;
+  statusHolder.innerHTML = '';
+  resultsHolder.innerHTML = '';
+  resetLink.style.display = 'none';
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+analyzeBtn.addEventListener('click', runReview);
+resetLink.addEventListener('click', () => location.reload());
+
+// --- Pure-JS fallback copy, used ONLY if the AI writing step above fails.
+// Deterministic detection already succeeded by this point — an AI/network
+// hiccup on the prose step should never produce a dead end. This never
+// invents or alters a number; it only wraps the same verified figures in
+// fixed, hand-written phrasing. ---
+function templateCoaching(patterns){
+  const out = {};
+  if (patterns.disposition){
+    out.disposition = {
+      observation: "You're holding onto losing trades far longer than winning ones — cutting winners short while giving losers room to run.",
+      rule: "Set a hard time-based exit for losing trades: if a position hasn't turned around within a fixed window, close it, no exceptions."
+    };
+  }
+  if (patterns.revenge){
+    out.revenge = {
+      observation: "Right after a loss, you've repeatedly jumped back in with a noticeably bigger position — a sign of chasing the loss back rather than following a plan.",
+      rule: "After any losing trade, enforce a mandatory cooldown before your next trade, and cap that next trade at your normal average size."
+    };
+  }
+  if (patterns.overtrading){
+    out.overtrading = {
+      observation: "On multiple days you fired off a string of quick trades that mostly cancelled each other out — paying costs for activity rather than edge.",
+      rule: "Once you've placed a handful of near-breakeven trades in a session, stop trading for the rest of that day."
+    };
+  }
+  return out;
+}
+
+async function runReview(){
+  if (!currentCSV) return;
+  analyzeBtn.disabled = true;
+  statusHolder.innerHTML = `<div class="status">Reconstructing trades and checking the numbers…</div>`;
+  resultsHolder.innerHTML = '';
+
+  try{
+    const orders = parseCSV(currentCSV);
+    const { trades, skipped } = reconstructTrades(orders);
+    if (trades.length === 0) throw new Error('No matched BUY/SELL pairs found in this file.');
+
+    const patterns = detectPatterns(trades);
+    const keys = Object.keys(patterns);
+
+    let coaching = {};
+    let usedFallback = false;
+    if (keys.length > 0){
+      statusHolder.innerHTML = `<div class="status">Writing up what it found…</div>`;
+      try {
+        coaching = await writeCoaching(patterns);
+      } catch(aiErr){
+        console.error('AI writing step failed, using template fallback:', aiErr);
+        coaching = templateCoaching(patterns);
+        usedFallback = true;
+      }
+    }
+
+    statusHolder.innerHTML = usedFallback
+      ? `<div class="status warn">Showing results with plain-text phrasing — the AI writing step had an issue.</div>`
+      : '';
+    renderResults(patterns, coaching, skipped);
+    resetLink.style.display = 'inline';
+  } catch(err){
+    console.error(err);
+    statusHolder.innerHTML = `<div class="error-box">Couldn't complete the review (${escapeHtml(err.message)}). Try again in a moment.</div>`;
+  } finally {
+    analyzeBtn.disabled = false;
+  }
+}
+
+const PATTERN_ORDER = ['disposition', 'revenge', 'overtrading'];
+
+function renderResults(patterns, coaching, skipped){
+  const keys = PATTERN_ORDER.filter(k => patterns[k]);
+  let html = `<div class="results-meta"><span>${keys.length ? keys.length + ' finding' + (keys.length > 1 ? 's' : '') : 'review complete'}</span></div>`;
+
+  if (keys.length === 0){
+    html += `<div class="clean-note">Nothing in this month clearly crossed the line into cutting winners early, revenge trading, or overtrading — no forced findings here.</div>`;
+  } else {
+    keys.forEach(k => {
+      const c = coaching[k] || {};
+      html += `
+        <div class="finding">
+          <p class="observation">${escapeHtml(c.observation || '')}</p>
+          <div class="evidence">${escapeHtml(patterns[k].evidence)}</div>
+          <div class="rule"><span class="label">try this</span>${escapeHtml(c.rule || '')}</div>
+        </div>`;
+    });
+  }
+
+  if (skipped > 0){
+    html += `<p class="disclaimer">${skipped} order${skipped > 1 ? 's' : ''} couldn't be matched into a clean round-trip trade and ${skipped > 1 ? 'were' : 'was'} skipped.</p>`;
+  }
+  html += `<p class="disclaimer">This reviews only the three named habits from order timestamps and P&amp;L — it isn't investment advice, doesn't see your full account context, and won't catch everything. Prototype built for a product take-home, not a live Nubra feature.</p>`;
+
+  resultsHolder.innerHTML = html;
+}
+</script>
+</body>
+</html>
+<script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public" data-netlify-site-id="5695c62e-c17f-4da5-a04a-ccff825eec7e" data-app-host="app.netlify.com"></script>
